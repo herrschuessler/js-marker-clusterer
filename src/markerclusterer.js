@@ -51,6 +51,7 @@
  *     'minimumClusterSize': (number) The minimum number of markers to be in a
  *                           cluster before the markers are hidden and a count
  *                           is shown.
+ *     'classname': (string) A CSS class for the cluster marker
  *     'styles': (object) An object that has style properties:
  *       'url': (string) The image url.
  *       'height': (number) The image height.
@@ -115,6 +116,11 @@ function MarkerClusterer(map, opt_markers, opt_options) {
    * @private
    */
   this.maxZoom_ = options['maxZoom'] || null;
+
+  /**
+   * @private
+   */
+  this.classname_ = options['classname'] || null;
 
   this.styles_ = options['styles'] || [];
 
@@ -284,6 +290,27 @@ MarkerClusterer.prototype.setStyles = function(styles) {
  */
 MarkerClusterer.prototype.getStyles = function() {
   return this.styles_;
+};
+
+
+
+/**
+ *  Sets the class.
+ *
+ *  @param {string} class The class to set.
+ */
+MarkerClusterer.prototype.setClassname = function(classname) {
+  this.classname_ = classname;
+};
+
+
+/**
+ *  Gets the class.
+ *
+ *  @return {string} The class name.
+ */
+MarkerClusterer.prototype.getClassname = function() {
+  return this.classname_;
 };
 
 
@@ -809,8 +836,7 @@ function Cluster(markerClusterer) {
   this.center_ = null;
   this.markers_ = [];
   this.bounds_ = null;
-  this.clusterIcon_ = new ClusterIcon(this, markerClusterer.getStyles(),
-      markerClusterer.getGridSize());
+  this.clusterIcon_ = new ClusterIcon(this, markerClusterer.getStyles(), markerClusterer.getClassname(), markerClusterer.getGridSize());
 }
 
 /**
@@ -1025,10 +1051,11 @@ Cluster.prototype.updateIcon = function() {
  * @extends google.maps.OverlayView
  * @ignore
  */
-function ClusterIcon(cluster, styles, opt_padding) {
+function ClusterIcon(cluster, styles, classname, opt_padding) {
   cluster.getMarkerClusterer().extend(ClusterIcon, google.maps.OverlayView);
 
   this.styles_ = styles;
+  this.classname_ = classname;
   this.padding_ = opt_padding || 0;
   this.cluster_ = cluster;
   this.center_ = null;
@@ -1065,6 +1092,7 @@ ClusterIcon.prototype.triggerClusterClick = function(event) {
  */
 ClusterIcon.prototype.onAdd = function() {
   this.div_ = document.createElement('DIV');
+  this.div_.className = this.classname_;
   if (this.visible_) {
     var pos = this.getPosFromLatLng_(this.center_);
     this.div_.style.cssText = this.createCss(pos);
@@ -1284,6 +1312,7 @@ MarkerClusterer.prototype['getMap'] = MarkerClusterer.prototype.getMap;
 MarkerClusterer.prototype['getMarkers'] = MarkerClusterer.prototype.getMarkers;
 MarkerClusterer.prototype['getMaxZoom'] = MarkerClusterer.prototype.getMaxZoom;
 MarkerClusterer.prototype['getStyles'] = MarkerClusterer.prototype.getStyles;
+MarkerClusterer.prototype['getClassname'] = MarkerClusterer.prototype.getClassname;
 MarkerClusterer.prototype['getTotalClusters'] =
     MarkerClusterer.prototype.getTotalClusters;
 MarkerClusterer.prototype['getTotalMarkers'] =
